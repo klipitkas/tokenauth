@@ -10,6 +10,17 @@ import (
 	"github.com/gofiber/fiber/v2/utils"
 )
 
+func mockAuthorizer(token string) Claims {
+	tokens := map[string]Claims{
+		"1HTWgKFX6zaCb5pwpH4RKJz7": {"user": "john", "email": "john@example.com", "id": "42"},
+	}
+	claims, exist := tokens[token]
+	if !exist {
+		return nil
+	}
+	return claims
+}
+
 // go test -run Test_TokenAuth_Next
 func Test_TokenAuth_Next(t *testing.T) {
 	app := fiber.New()
@@ -27,11 +38,10 @@ func Test_TokenAuth_Next(t *testing.T) {
 func Test_Middleware_TokenAuth(t *testing.T) {
 	app := fiber.New()
 
-	cfg := Config{
-		Tokens: map[string]Claims{"1HTWgKFX6zaCb5pwpH4RKJz7": {"user": "john", "email": "john@example.com", "id": "42"}},
-	}
+	cfg := Config{Authorizer: mockAuthorizer}
 
 	app.Use(New(cfg))
+
 	app.Get("/testauth", func(c *fiber.Ctx) error {
 		claims := c.Locals("claims").(Claims)
 		bytes, _ := json.Marshal(claims)
@@ -54,13 +64,13 @@ func Test_Middleware_TokenAuth(t *testing.T) {
 			url:        "/testauth",
 			statusCode: 401,
 			token:      "",
-			claims:     nil,
+			claims:     Claims{},
 		},
 		{
 			url:        "/testauth",
 			statusCode: 401,
 			token:      "123456",
-			claims:     nil,
+			claims:     Claims{},
 		},
 	}
 

@@ -16,11 +16,6 @@ type Config struct {
 	// Optional. Default: nil
 	Next func(c *fiber.Ctx) bool
 
-	// Tokens defines the mappings between the tokens and their claims.
-	//
-	// Required. Default: map[string]Claims{}
-	Tokens map[string]Claims
-
 	// Realm is a string to define realm attribute of BasicAuth.
 	// the realm identifies the system to authenticate against
 	// and can be used by clients to save credentials
@@ -53,7 +48,6 @@ type Config struct {
 // ConfigDefault is the default config
 var ConfigDefault = Config{
 	Next:         nil,
-	Tokens:       map[string]Claims{},
 	Realm:        "Restricted",
 	Authorizer:   nil,
 	Unauthorized: nil,
@@ -63,24 +57,16 @@ var ConfigDefault = Config{
 // New creates a new middleware handler
 func New(config Config) fiber.Handler {
 	cfg := config
-
 	// Set default values
 	if cfg.Next == nil {
 		cfg.Next = ConfigDefault.Next
 	}
-	if cfg.Tokens == nil {
-		cfg.Tokens = ConfigDefault.Tokens
-	}
-	if cfg.Realm == "" {
-		cfg.Realm = ConfigDefault.Realm
-	}
 	if cfg.Authorizer == nil {
 		cfg.Authorizer = func(token string) Claims {
-			claims, exist := cfg.Tokens[token]
-			if !exist {
+			if len(token) == 0 {
 				return nil
 			}
-			return claims
+			return Claims{}
 		}
 	}
 	if cfg.Unauthorized == nil {
@@ -91,28 +77,22 @@ func New(config Config) fiber.Handler {
 	if cfg.ContextKey == "" {
 		cfg.ContextKey = ConfigDefault.ContextKey
 	}
-
 	// Return new handler
 	return func(c *fiber.Ctx) error {
 		// Don't execute middleware if Next returns true
 		if cfg.Next != nil && cfg.Next(c) {
 			return c.Next()
 		}
-
 		// Get authorization header
 		auth := c.Get(fiber.HeaderAuthorization)
-
 		// Check if header is valid
 		if len(auth) > 6 && strings.ToLower(auth[:6]) == "bearer" {
 			// Get the token
 			token := auth[7:]
-
 			if len(token) == 0 {
 				return cfg.Unauthorized(c)
 			}
-
 			claims := cfg.Authorizer(token)
-
 			if claims != nil {
 				c.Locals(cfg.ContextKey, claims)
 				return c.Next()
