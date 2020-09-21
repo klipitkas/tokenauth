@@ -16,13 +16,6 @@ type Config struct {
 	// Optional. Default: nil
 	Next func(c *fiber.Ctx) bool
 
-	// Realm is a string to define realm attribute of BasicAuth.
-	// the realm identifies the system to authenticate against
-	// and can be used by clients to save credentials
-	//
-	// Optional. Default: "Restricted".
-	Realm string
-
 	// Authorizer defines a function you can pass
 	// to check the token however you want.
 	// It will be called with the provided token
@@ -48,7 +41,6 @@ type Config struct {
 // ConfigDefault is the default config
 var ConfigDefault = Config{
 	Next:         nil,
-	Realm:        "Restricted",
 	Authorizer:   nil,
 	Unauthorized: nil,
 	ContextKey:   "claims",
