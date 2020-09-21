@@ -21,12 +21,20 @@ import (
 	"github.com/klipitkas/tokenauth"
 )
 
+var Tokens = map[string]tokenauth.Claims{
+	"token": {"user": "john", "email": "john@example.com", "id": "42"},
+}
+
 func main() {
 	app := fiber.New()
 
 	app.Use(tokenauth.New(tokenauth.Config{
-		Tokens: map[string]tokenauth.Claims{
-			"token":  {"user": "john", "id": "42"},
+		Authorizer: func(s string) tokenauth.Claims {
+			claims, exist := Tokens[s]
+			if !exist {
+				return nil
+			}
+			return claims
 		},
 	}))
 
