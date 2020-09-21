@@ -3,62 +3,67 @@ package tokenauth
 import (
 	"strings"
 	"testing"
-
-	"github.com/gofiber/fiber/v2/utils"
 )
 
 // go test -run Test_NewToken
 func Test_NewToken(t *testing.T) {
 	tests := []struct {
-		length   int
-		wantErr  bool
-		alphabet string
+		desc            string
+		conf            TokenConfig
+		wantError       bool
+		wantTokenLength int
+		wantCharacters  string
 	}{
 		{
-			length:   -1,
-			alphabet: Alphabet,
-			wantErr:  true,
+			desc:            "Token length is -1.",
+			conf:            TokenConfig{Length: -1},
+			wantError:       false,
+			wantTokenLength: MinTokenLength,
+			wantCharacters:  TokenConfigDefault.Alphabet,
 		},
 		{
-			length:   0,
-			alphabet: Alphabet,
-			wantErr:  true,
+			desc:            "Token length is zero.",
+			conf:            TokenConfig{Length: 0},
+			wantError:       false,
+			wantTokenLength: MinTokenLength,
+			wantCharacters:  TokenConfigDefault.Alphabet,
 		},
 		{
-			length:   16,
-			alphabet: Alphabet,
-			wantErr:  false,
+			desc:            "Token length is 20 and alphabet is default.",
+			conf:            TokenConfig{Length: 20},
+			wantError:       false,
+			wantTokenLength: 20,
+			wantCharacters:  TokenConfigDefault.Alphabet,
 		}, {
-			length:   16,
-			alphabet: "abc",
-			wantErr:  false,
+			desc:            "Token length is 24 and alphabet is \"ABCabc012\"",
+			conf:            TokenConfig{Length: 24, Alphabet: "ABCabc012"},
+			wantError:       false,
+			wantTokenLength: 24,
+			wantCharacters:  "ABCabc012",
 		}, {
-			length:   100000,
-			alphabet: "abcdef",
-			wantErr:  true,
+			desc:            "Token length is 10000 and alphabet is default.",
+			conf:            TokenConfig{Length: 10000},
+			wantError:       false,
+			wantTokenLength: MaxTokenLength,
+			wantCharacters:  TokenConfigDefault.Alphabet,
 		},
 	}
 
 	for _, tt := range tests {
-		if len(tt.alphabet) > 0 {
-			Alphabet = tt.alphabet
-		}
-		token, err := NewToken(tt.length)
-		if !tt.wantErr {
-			utils.AssertEqual(t, nil, err)
-		}
-		if tt.wantErr {
-			utils.AssertEqual(t, "", token)
-		}
-		if tt.length > 0 && tt.length < MaxTokenLength {
-			utils.AssertEqual(t, len(token), tt.length)
-		}
-		if len(tt.alphabet) > 0 {
-			for _, r := range token {
-				if !strings.ContainsRune(tt.alphabet, r) {
-					t.Fatalf("string %s does not contain rune: %c", tt.alphabet, r)
+		tt := tt // https://github.com/kyoh86/scopelint/issues/4#issuecomment-471661062
+		t.Run(tt.desc, func(t *testing.T) {
+			token, err := NewToken(tt.conf)
+			if tt.wantError && err == nil {
+				t.Errorf("Wanted error for test: %s but got error = nil", tt.desc)
+			}
+			if len(token) != tt.wantTokenLength {
+				t.Errorf("Want token length %d but got token length %d", tt.wantTokenLength, len(token))
+			}
+			for _, c := range token {
+				if !strings.ContainsRune(tt.wantCharacters, c) {
+					t.Errorf("Want character %c in alphabet %q, but it was not found", c, tt.wantCharacters)
 				}
 			}
-		}
+		})
 	}
 }
