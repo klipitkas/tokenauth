@@ -2,12 +2,21 @@
 
 Token Authentication middleware for [Fiber](https://github.com/gofiber/fiber) that provides a basic token authentication. It calls the next handler for valid token and [401 Unauthorized](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401) for a missing or an invalid token.
 
-### How to use
+## Table of contents
+
+**Middleware**
 
 - [In memory](#in-memory)
 - [Databases](#databases)
   - [Postgres](#postgres)
 - [Redis](#redis)
+
+**Tokens**
+
+- [Default](#default-token-generation)
+- [Custom](#custom-token-generation)
+
+---
 
 ### IN MEMORY
 
@@ -313,4 +322,71 @@ Try to access the route after providing a token:
 ```shell
 $ curl -H 'Authorization: Bearer token' http://localhost:3000
 Hello, user with details: test 👋!
+```
+
+### Default Token Generation
+
+To generate a new token with the default config:
+
+```go
+package main
+
+import (
+	"fmt"
+	"log"
+
+	"github.com/klipitkas/tokenauth"
+)
+
+func main() {
+	token, err := tokenauth.NewToken(tokenauth.TokenConfig{})
+	if err != nil {
+		log.Fatalf("Token generation failed: %v", err)
+	}
+	fmt.Printf("Token: %s", token)
+}
+```
+
+You can specify the following parameters as the token configuration:
+
+```go
+// TokenConfig is the struct that contains the config
+// for token generation.
+type TokenConfig struct {
+	// Alphabet contains the characters that can be used as parts of the token.
+	Alphabet string
+	// Length is the length of the token to generate.
+	Length int
+	// Generator is the function that can be used to generate tokens.
+	Generator func(int, string) (string, error)
+}
+```
+
+### Custom Token Generation
+
+If you want to use a custom function to generate a token:
+
+```go
+package main
+
+import (
+	"fmt"
+	"log"
+
+	"github.com/klipitkas/tokenauth"
+)
+
+func main() {
+	token, err := tokenauth.NewToken(tokenauth.TokenConfig{
+		Generator: ultraSecureTokenGenerator,
+	})
+	if err != nil {
+		log.Fatalf("Token generation failed: %v", err)
+	}
+	fmt.Printf("Token: %s", token)
+}
+
+func ultraSecureTokenGenerator(length int, alphabet string) (string, error) {
+	return "token", nil
+}
 ```
