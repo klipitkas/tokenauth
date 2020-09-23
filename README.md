@@ -2,20 +2,20 @@
 [![GitHub issues](https://img.shields.io/github/issues/klipitkas/tokenauth)](https://github.com/klipitkas/tokenauth/issues)
 [![GitHub license](https://img.shields.io/github/license/klipitkas/tokenauth)](https://github.com/klipitkas/tokenauth/blob/master/LICENSE)
 
-# Token Authentication
+# 🔒 Token Authentication
 
-Token Authentication middleware for [Fiber](https://github.com/gofiber/fiber) that provides a basic token authentication. It calls the next handler for valid token and [401 Unauthorized](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401) for a missing or an invalid token.
+Token Authentication middleware for [Fiber](https://github.com/gofiber/fiber) that provides a basic token authentication.
 
-## Table of contents
+## 📝 Table of contents
 
-**Middleware**
+**Examples**
 
 - [In memory](#in-memory)
 - [Databases](#databases)
   - [Postgres](#postgres)
 - [Redis](#redis)
 
-**Tokens**
+**Token Generation**
 
 - [Default](#default-token-generation)
 - [Custom](#custom-token-generation)
