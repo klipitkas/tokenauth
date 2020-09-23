@@ -1,3 +1,7 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/klipitkas/tokenauth)](https://goreportcard.com/report/github.com/klipitkas/tokenauth)
+[![GitHub issues](https://img.shields.io/github/issues/klipitkas/tokenauth)](https://github.com/klipitkas/tokenauth/issues)
+[![GitHub license](https://img.shields.io/github/license/klipitkas/tokenauth)](https://github.com/klipitkas/tokenauth/blob/master/LICENSE)
+
 # Token Authentication
 
 Token Authentication middleware for [Fiber](https://github.com/gofiber/fiber) that provides a basic token authentication. It calls the next handler for valid token and [401 Unauthorized](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401) for a missing or an invalid token.
