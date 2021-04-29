@@ -1,0 +1,15 @@
+version: 2
+updates:
+- package-ecosystem: gomod
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "04:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: github.com/gofiber/fiber/v2
+    versions:
+    - 2.2.3
+    - 2.5.0
+    - 2.6.0
+    - 2.7.1
